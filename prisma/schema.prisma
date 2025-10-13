@@ -1,0 +1,93 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+
+// ------------------------------------------------------------------
+// CORE MODELS
+// ------------------------------------------------------------------
+
+/// @map("clinics")
+model Clinic {
+  // This UUID must match the 'id' of the user in Supabase Auth (auth.users table)
+  // when the clinic signs up. This links the clinic entity to the Supabase user.
+  id        String   @id @db.Uuid // Corresponds to the Supabase Auth User ID (UUID)
+  name      String
+  address   String?
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relationship: One Clinic has Many Doctors
+  doctors   Doctor[]
+
+  @@map("clinics")
+}
+
+/// @map("doctors")
+model Doctor {
+  id            Int      @id @default(autoincrement())
+  clinicId      String   @db.Uuid // Foreign key to Clinic
+  name          String
+  specialty     String?
+  contactEmail  String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relationship: Many Doctors belong to One Clinic
+  clinic        Clinic     @relation(fields: [clinicId], references: [id])
+
+  // Relationship: One Doctor has Many Appointments
+  appointments  Appointment[]
+
+  @@map("doctors")
+}
+
+/// @map("patients")
+model Patient {
+  id            Int      @id @default(autoincrement())
+  name          String
+  phone         String   @unique // Assuming phone is a unique identifier for booking
+  email         String?
+
+  // Relationship: One Patient can have Many Appointments
+  appointments  Appointment[]
+
+  @@map("patients")
+}
+
+/// @map("appointments")
+model Appointment {
+  id            Int      @id @default(autoincrement())
+  doctorId      Int      // Foreign key to Doctor
+  patientId     Int      // Foreign key to Patient
+  startTime     DateTime // The scheduled time for the appointment
+  durationMins  Int      @default(30)
+  status        String   @default("SCHEDULED") // e.g., SCHEDULED, COMPLETED, CANCELLED
+  notes         String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  // Relationships
+  doctor        Doctor   @relation(fields: [doctorId], references: [id])
+  patient       Patient  @relation(fields: [patientId], references: [id])
+
+  // Ensure a doctor doesn't have overlapping appointments (requires custom logic in application, 
+  // but a unique index on doctor and startTime is a good starting point)
+  // @@unique([doctorId, startTime]) 
+  
+  @@map("appointments")
+}
