@@ -1,5 +1,3 @@
-import { getUser } from "@/lib/supabase/authServer";
-import { getApiKeyAction, getBookingsAction } from "./actions/actions";
 import { AppSidebar } from "@/components/app-sidebar"
 import { ChartAreaInteractive } from "@/components/chart-area-interactive"
 import { DataTable } from "@/components/data-table"
@@ -9,13 +7,10 @@ import {
   SidebarInset,
   SidebarProvider,
 } from "@/components/ui/sidebar"
-import data from "./data.json"
-export default async function Home() {
-  const { data: { user  } } = await getUser();
-  const apiKey = await getApiKeyAction(user?.id);
 
-  const bookings = await getBookingsAction(apiKey.key);
-  // console.log(bookings.data);
+import data from "./data.json"
+
+export default function Page() {
   return (
     <SidebarProvider
       style={
@@ -41,6 +36,5 @@ export default async function Home() {
         </div>
       </SidebarInset>
     </SidebarProvider>
-  );
+  )
 }
-// ...existing code...

@@ -11,6 +11,7 @@ export async function middleware(request: NextRequest) {
   // if (isPublicRoute.some(path => request.nextUrl.pathname.startsWith(path))) {
   //   return
   // }
+  
   return await updateSession(request)
 }
 

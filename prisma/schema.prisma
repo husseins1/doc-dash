@@ -91,3 +91,12 @@ model Appointment {
   
   @@map("appointments")
 }
+
+model ApiKey {
+  id String @id @db.Uuid @unique
+  key String @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("api_keys")
+}

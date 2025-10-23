@@ -1,6 +1,8 @@
-import { createClient } from '@/lib/supabase/supabaseClient';
+import { createClient } from "./server";
 
-const supabase = createClient();
+
+
+
 // Sign up
 export async function signUp(email: string, password: string) {
     console.log(supabase);
@@ -18,20 +20,22 @@ export async function signOut() {
 }
 
 export async function getSession() {
+  const supabase = await createClient();
   return await supabase.auth.getSession();
 }
 
 export async function getUser() {
+  const supabase = await createClient();
   return await supabase.auth.getUser();
 }
 
 export async function signInWithGoogle() {
+    const supabase = await createClient();
+    console.log(`${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`);
   return supabase.auth.signInWithOAuth({
     provider: 'google',
     options: {
-      redirectTo: typeof window !== 'undefined'
-        ? `${window.location.origin}/auth/callback`
-        : undefined,
+      redirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/callback`,
     },
   });
 }
